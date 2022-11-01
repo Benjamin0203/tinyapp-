@@ -3,42 +3,77 @@ const app = express();
 const PORT = 8000;
 
 app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+const generateRandomString = () => {
+  return Math.random().toString(36).slice(2, 8);
+};
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
 
-app.get("/hello", (req,res) => {
-  res.send("<html><body>Hello <b>world</b></body></html>\n")
-});
 
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
 
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
-});
+// app.get("/hello", (req,res) => {
+//   res.send("<html><body>Hello <b>world</b></body></html>\n")
+// });
+
+
+// app.get("/set", (req, res) => {
+//   const a = 1;
+//   res.send(`a = ${a}`);
+// });
+
+// app.get("/fetch", (req, res) => {
+//   res.send(`a = ${a}`);
+// });
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase}
   res.render("urls_index", templateVars);
 });
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+app.post("/urls", (req, res) => {
+  // console.log(req.body); //log the POST request body to the console
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+
+  res.redirect(`/urls/${shortURL}`);
+  
+});
+
+
+
+app.get("/u/:id", (req, res) => {
+  // if (!urlDatabase[req.params.shortURL]) {
+  //   res.status(404);
+  //   return;
+  // }
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
+
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]}
   res.render("urls_show", templateVars)
-})
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
