@@ -33,7 +33,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     username: req.cookies["username"]
@@ -41,17 +40,23 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-
-
 app.post("/login", (req, res) => {
   let cookie = req.body.username;
   console.log(cookie);
   res.cookie("username", cookie);
   res.redirect("/urls");
 });
+
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
+});
+
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("registration", templateVars)
 })
 
 app.post("/urls", (req, res) => {
