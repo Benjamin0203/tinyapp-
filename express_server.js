@@ -13,7 +13,6 @@ const generateRandomString = () => {
   return Math.random().toString(36).slice(2, 8);
 };
 
-
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -40,10 +39,6 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
   
 });
-
-
-
-
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
