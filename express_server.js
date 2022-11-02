@@ -8,6 +8,19 @@ app.use(express.urlencoded({ extended: true }));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -54,9 +67,24 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    username: req.cookies["username"],
+    user_id: req.cookies["user_id"]
   }
   res.render("registration", templateVars)
+});
+
+app.post("/register", (req, res) => {
+  let userEmail = req.body.email;
+  let userPassword = req.body.password;
+  const randomID = generateRandomString();
+  users[randomID] = {
+    id: randomID,
+    email: userEmail,
+    password: userPassword
+  }
+  res.cookie("user_id", users[randomID].id);
+  console.log(users);
+  res.redirect("/urls");
 })
 
 app.post("/urls", (req, res) => {
