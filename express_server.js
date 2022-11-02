@@ -4,6 +4,7 @@ const PORT = 8000;
 
 app.set("view engine", "ejs");
 
+//middleware
 app.use(express.urlencoded({ extended: true }));
 
 const cookieParser = require('cookie-parser');
@@ -41,11 +42,11 @@ const checkUserKey = (key, variable) => {
   }
   return false;
 }
+
 //Homepage
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
-
 
 app.get("/urls", (req, res) => {
   const templateVars = { 
@@ -65,8 +66,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     // username: req.cookies["username"],
     users,
-    user_id: req.cookies["user_id"]
-    
+    user_id: req.cookies["user_id"] 
   }
   res.render("urls_new", templateVars);
 });
@@ -85,7 +85,7 @@ app.post("/login", (req, res) => {
   let userPassword = req.body.password;
 
   for (let user in users) {
-    if (checkUserKey("email", userEmail) && checkUserKey("password", userPassword)) {
+    if (users[user].email === userEmail && users[user].password === userPassword) {
       res.cookie("user_id", users[user].id);
       res.redirect("/urls");
     }
@@ -115,6 +115,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   let userEmail = req.body.email;
   let userPassword = req.body.password;
+  const randomID = generateRandomString();
 
   if (checkUserKey("email", userEmail)) {
     res.status(400)
@@ -126,9 +127,7 @@ app.post("/register", (req, res) => {
     res.send(`status code: ${res.statusCode} You must register with a valid Email and password`);
     return;
   }
-  
 
-  const randomID = generateRandomString();
   users[randomID] = {
     id: randomID,
     email: userEmail,
@@ -145,31 +144,37 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+//Direct shortURL to longURL
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  if (longURL === undefined) {
+    res.status(404);
+    res.render("404_not_found");
+    return;
+  }
   res.redirect(longURL);
 });
 
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, 
-    longURL: urlDatabase[req.params.id], 
-    /*username: req.cookies["username"],*/ 
+//Get new shortURL page (urls_show)
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL],  
     users, user_id: req.cookies["user_id"]};
   res.render("urls_show", templateVars)
 });
 
-app.post("/urls/:id", (req, res) => {
+//Edit longURL
+app.post("/urls/:shortURL", (req, res) => {
   let longURL = req.body.updatedURL;
-  urlDatabase[req.params.id] = longURL;
-  res.redirect("/urls");
+  urlDatabase[req.params.shortURL] = longURL;
+  res.redirect(`/urls`);
 });
 
-//delete
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+//Delete
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
   res.redirect("/urls/");
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
