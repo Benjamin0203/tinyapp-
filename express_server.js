@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8000;
 
 app.set("view engine", "ejs");
+
 app.use(express.urlencoded({ extended: true }));
 
 const cookieParser = require('cookie-parser');
@@ -84,9 +85,9 @@ app.post("/login", (req, res) => {
   let userPassword = req.body.password;
 
   for (let user in users) {
-    if (users[user].email === userEmail && users[user].password === userPassword) {
-      res.cookie('user_id', users[user].id);
-      res.redirect('/urls');
+    if (checkUserKey("email", userEmail) && checkUserKey("password", userPassword)) {
+      res.cookie("user_id", users[user].id);
+      res.redirect("/urls");
     }
   }
 
@@ -112,19 +113,20 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  let userEmail = req.body.email;
+  let userPassword = req.body.password;
 
-  if (checkUserKey('email', req.body.email)) {
+  if (checkUserKey("email", userEmail)) {
     res.status(400)
     res.send(`status code: ${res.statusCode} email already in use`);
     return;
   }
-  if (req.body.email.length < 1 || req.body.password.length < 1) {
+  if (userEmail.length < 1 || userPassword.length < 1) {
     res.status(400)
     res.send(`status code: ${res.statusCode} You must register with a valid Email and password`);
     return;
   }
-  let userEmail = req.body.email;
-  let userPassword = req.body.password;
+  
 
   const randomID = generateRandomString();
   users[randomID] = {
