@@ -18,22 +18,20 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <% if (username) {%>
+    <% if (users[user_id]) {%>
       <form action="/logout" class= "form-inline" method= "post">
         <span class="navbar-text" style="margin-right: 0.5rem;">Logged in as: </span>
         <span class="navbar-brand">
-          <%= username %> 
+          <%= users[user_id].email %> 
         </span>
         <button type="submit" class="btn btn-primary">Logout</button>
       </form>
       <% } %>
-      <% if (username === undefined) {%>
-        <form action="/login" class="form-inline" method="post">
-          <div class="form-group">
-            <input type="text" name="username", value="username" class="form-control" style="width: 150px; margin: 0.5em">
-            <button type="submit" class="btn btn-primary">Login</button>
-          </div>
-        </form>
+      <% if (users[user_id] === undefined) {%>
+        <div class="navbar-nav">
+          <a href="/login" class="nav-item nav-link"> Login </a>
+          <a href="/register" class="nav-item nav-link"> Register </a>
+        </div>
         <% } %>  
   </nav>
 </header>
