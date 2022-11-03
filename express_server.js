@@ -79,9 +79,10 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//Change
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    urls: urlDatabase,
+    urls: urlsForUser(req.cookies.user_id),
     users,
     user_id: req.cookies["user_id"]
   }
