@@ -43,31 +43,10 @@ const urlDatabase = {
   },
 };
 
-//Function: generate random string
-const generateRandomString = () => {
-  return Math.random().toString(36).slice(2, 8);
-};
+const { generateRandomString } = require ('./helpers');
+const { getUserByEmail } = require ('./helpers');
+const { urlsForUser } = require ('./helpers');
 
-//Function: check if the key exists in users
-const getUserByEmail = (email, database) => {
-  for (let user in database) {
-    if (database[user].email === email) {
-      return database[user];
-    }
-  }
-  return undefined;
-}
-
-//Function: returns the URLs where the userID is qual to the id of the currently logged-in user
-const urlsForUser = id => {
-  let result = {};
-  for (let el in urlDatabase) {
-    if (urlDatabase[el].userID === id) {
-      result[el] = urlDatabase[el];
-    }
-  }
-  return result;
-};
 
 //Homepage
 app.get("/", (req, res) => {
@@ -77,7 +56,7 @@ app.get("/", (req, res) => {
 //Change
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    urls: urlsForUser(req.session.user_id),
+    urls: urlsForUser(req.session.user_id, urlDatabase),
     users,
     user_id: req.session.user_id,
     noUser: true,
