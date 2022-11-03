@@ -1,4 +1,6 @@
 const express = require("express");
+const morgan = require("morgan");
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8000;
 
@@ -7,7 +9,6 @@ app.set("view engine", "ejs");
 //middleware
 app.use(express.urlencoded({ extended: true }));
 
-const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 const cookieSession = require("cookie-session");
@@ -15,6 +16,8 @@ app.use(cookieSession({
   name: "session",
   keys: ["key1", "key2"]
 }));
+
+app.use(morgan("dev"));
 
 const users = {
   userRandomID: {
@@ -29,9 +32,20 @@ const users = {
   },
 };
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 //Function: generate random string
@@ -69,6 +83,10 @@ app.get("/urls.json", (req, res) => {
 
 // Get new urls
 app.get("/urls/new", (req, res) => {
+  // if (req.session.user_id === undefined) {
+  //   res.redirect("/login");
+  //   return;
+  // }
 
   const templateVars = {
     users,
@@ -145,7 +163,10 @@ app.post("/register", (req, res) => {
 
 //Generating shortURL
 app.post("/urls", (req, res) => {
-
+  // if (req.session.user_id === undefined) {
+  //   res.redirect("/login");
+  //   return;
+  // }
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
