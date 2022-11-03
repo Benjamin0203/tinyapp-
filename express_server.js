@@ -11,11 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-const cookieSession = require("cookie-session");
-app.use(cookieSession({
-  name: "session",
-  keys: ["key1", "key2"]
-}));
+
 
 app.use(morgan("dev"));
 
@@ -82,10 +78,19 @@ app.get("/", (req, res) => {
 //Change
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    urls: urlsForUser(req.cookies.user_id),
+    urls: urlsForUser(req.cookies["user_id"]),
     users,
-    user_id: req.cookies["user_id"]
+    user_id: req.cookies["user_id"],
+    noUser: true,
+    wrongMsg: false
   }
+
+  if (req.cookies["user_id"] === undefined) {
+    templateVars["noUser"] === false;
+    res.render("login", templateVars);
+    return;
+  }
+
   res.render("urls_index", templateVars);
 });
 
@@ -112,7 +117,9 @@ app.get("/urls/new", (req, res) => {
 app.get("/login", (req, res) => {
   const templateVars = {
     user_id: req.cookies["user_id"],
-    users
+    users,
+    noUser: false,
+    wrongMsg: false
   }
   res.render("login", templateVars)
 })
@@ -128,6 +135,14 @@ app.post("/login", (req, res) => {
       return;
     }
   }
+
+  const templateVars = {
+    user_id: req.cookies.user_id,
+    users,
+    noUser: false,
+    wrongMsg: true
+  }
+
   res.status(403)
   res.send(`status code: ${res.statusCode} Incorrect Email or password`);
   return;
