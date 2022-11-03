@@ -49,13 +49,13 @@ const generateRandomString = () => {
 };
 
 //Function: check if the key exists in users
-const checkUserKey = (key, variable) => {
-  for (let user in users) {
-    if (users[user][key] === variable) {
-      return true;
+const getUserByEmail = (email, database) => {
+  for (let user in database) {
+    if (database[user].email === email) {
+      return database[user];
     }
   }
-  return false;
+  return undefined;
 }
 
 //Function: returns the URLs where the userID is qual to the id of the currently logged-in user
@@ -127,10 +127,11 @@ app.post("/login", (req, res) => {
   let userEmail = req.body.email;
   let userPassword = req.body.password;
 
-  for (let user in users) {
-    if (users[user].email === userEmail && bcrypt.compareSync(userPassword, users[user].password)) {
-      res.session.user_id = users[user].id;
-      res.redirect("/urls");
+  if (getUserByEmail(userEmail, users)) {
+    const getUser = getUserByEmail(userEmail, users);
+    if (bcrypt.compareSync(userPassword, getUser.password)) {
+      req.session.user_id = getUser.id;
+      res.redirect('/urls');
       return;
     }
   }
@@ -143,14 +144,14 @@ app.post("/login", (req, res) => {
   }
 
   res.status(403)
-  // res.send(`status code: ${res.statusCode} Incorrect Email or password`);
   res.render("login", templateVars)
   return;
 });
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  // res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
@@ -160,6 +161,11 @@ app.get("/register", (req, res) => {
     user_id: req.session.user_id,
     users
   }
+  if (req.session.user_id) {
+    res.redirect('/urls');
+    return;
+  }
+
   res.render("registration", templateVars)
 });
 
@@ -169,7 +175,7 @@ app.post("/register", (req, res) => {
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
   const randomID = generateRandomString();
 
-  if (checkUserKey("email", userEmail)) {
+  if (getUserByEmail(userEmail, users)) {
     res.status(400)
     res.send(`status code: ${res.statusCode} email already in use`);
     return;
