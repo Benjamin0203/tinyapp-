@@ -14,9 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
   keys: ['secretKey'],
-}))
+}));
 app.use(morgan("dev"));
-
 
 const users = {
   userRandomID: {
@@ -31,7 +30,6 @@ const users = {
   },
 };
 
-
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -43,10 +41,10 @@ const urlDatabase = {
   },
 };
 
-const { generateRandomString } = require ('./helpers');
-const { getUserByEmail } = require ('./helpers');
-const { urlsForUser } = require ('./helpers');
-
+//helper.js modules
+const { generateRandomString } = require('./helpers');
+const { getUserByEmail } = require('./helpers');
+const { urlsForUser } = require('./helpers');
 
 //Homepage
 app.get("/", (req, res) => {
@@ -55,13 +53,13 @@ app.get("/", (req, res) => {
 
 //Change
 app.get("/urls", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     urls: urlsForUser(req.session.user_id, urlDatabase),
     users,
     user_id: req.session.user_id,
     noUser: true,
     wrongMsg: false
-  }
+  };
 
   if (req.session.user_id === undefined) {
     templateVars["noUser"] === false;
@@ -85,11 +83,10 @@ app.get("/urls/new", (req, res) => {
 
   const templateVars = {
     users,
-    user_id: req.session.user_id 
-  }
+    user_id: req.session.user_id
+  };
   res.render("urls_new", templateVars);
 });
-
 
 // Login
 app.get("/login", (req, res) => {
@@ -98,9 +95,9 @@ app.get("/login", (req, res) => {
     users,
     noUser: false,
     wrongMsg: false
-  }
-  res.render("login", templateVars)
-})
+  };
+  res.render("login", templateVars);
+});
 
 app.post("/login", (req, res) => {
   let userEmail = req.body.email;
@@ -120,10 +117,10 @@ app.post("/login", (req, res) => {
     users,
     noUser: false,
     wrongMsg: true
-  }
+  };
 
-  res.status(403)
-  res.render("login", templateVars)
+  res.status(403);
+  res.render("login", templateVars);
   return;
 });
 
@@ -139,13 +136,13 @@ app.get("/register", (req, res) => {
   const templateVars = {
     user_id: req.session.user_id,
     users
-  }
+  };
   if (req.session.user_id) {
     res.redirect('/urls');
     return;
   }
 
-  res.render("registration", templateVars)
+  res.render("registration", templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -155,12 +152,12 @@ app.post("/register", (req, res) => {
   const randomID = generateRandomString();
 
   if (getUserByEmail(userEmail, users)) {
-    res.status(400)
+    res.status(400);
     res.send(`status code: ${res.statusCode} email already in use`);
     return;
   }
   if (userEmail.length < 1 || userPassword.length < 1) {
-    res.status(400)
+    res.status(400);
     res.send(`status code: ${res.statusCode} You must register with a valid Email and password`);
     return;
   }
@@ -169,11 +166,10 @@ app.post("/register", (req, res) => {
     id: randomID,
     email: userEmail,
     password: hashedPassword
-  }
-  // res.cookie("user_id", users[randomID].id);
+  };
   req.session.user_id = users[randomID].id;
   res.redirect("/urls");
-})
+});
 
 //Generating shortURL
 app.post("/urls", (req, res) => {
@@ -185,7 +181,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: req.session.user_id
-  }
+  };
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -202,10 +198,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Get new shortURL page (urls_show)
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL]["longURL"],  
-    users, user_id: req.session.user_id};
-  res.render("urls_show", templateVars)
+  const templateVars = {shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL]["longURL"],
+    users,
+    user_id: req.session.user_id
+  };
+  res.render("urls_show", templateVars);
 });
 
 //Edit longURL
@@ -223,11 +221,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     return;
   }
   res.status(401);
-  res.send("Error: No Access")
+  res.send("Error: No Access");
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-//change
