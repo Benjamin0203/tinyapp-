@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require('cookie-parser');
+const bcrypt = rquire("bcryptjs");
 const app = express();
 const PORT = 8000;
 
@@ -8,12 +9,11 @@ app.set("view engine", "ejs");
 
 //middleware
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
-
-
-
 app.use(morgan("dev"));
+
+const password = "purple-monkey-dinosaur";
+const hashedPassword = bcrypt.hashSync(password, 10);
 
 const users = {
   userRandomID: {
@@ -28,10 +28,6 @@ const users = {
   },
 };
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
 
 const urlDatabase = {
   b6UTxQ: {
