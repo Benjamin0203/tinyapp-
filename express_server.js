@@ -10,6 +10,12 @@ app.use(express.urlencoded({ extended: true }));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const cookieSession = require("cookie-session");
+app.use(cookieSession({
+  name: "session",
+  keys: ["key1", "key2"]
+}));
+
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -51,7 +57,6 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
-    // username: req.cookies["username"],
     users,
     user_id: req.cookies["user_id"]
   }
@@ -62,14 +67,16 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// Get new urls
 app.get("/urls/new", (req, res) => {
+
   const templateVars = {
-    // username: req.cookies["username"],
     users,
-    user_id: req.cookies["user_id"] 
+    user_id: req.session["user_id"] 
   }
   res.render("urls_new", templateVars);
 });
+
 
 // Login
 app.get("/login", (req, res) => {
@@ -88,9 +95,9 @@ app.post("/login", (req, res) => {
     if (users[user].email === userEmail && users[user].password === userPassword) {
       res.cookie("user_id", users[user].id);
       res.redirect("/urls");
+      return;
     }
   }
-
   res.status(403)
   res.send(`status code: ${res.statusCode} Incorrect Email or password`);
   return;
@@ -105,7 +112,6 @@ app.post("/logout", (req, res) => {
 //Register
 app.get("/register", (req, res) => {
   const templateVars = {
-    // username: req.cookies["username"],
     user_id: req.cookies["user_id"],
     users
   }
@@ -137,8 +143,9 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 })
 
-//Generating long url
+//Generating shortURL
 app.post("/urls", (req, res) => {
+
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
