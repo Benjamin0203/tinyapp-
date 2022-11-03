@@ -144,7 +144,8 @@ app.post("/login", (req, res) => {
   }
 
   res.status(403)
-  res.send(`status code: ${res.statusCode} Incorrect Email or password`);
+  // res.send(`status code: ${res.statusCode} Incorrect Email or password`);
+  res.render("login", templateVars)
   return;
 });
 
@@ -207,7 +208,7 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]["longURL"];
   if (longURL === undefined) {
     res.status(404);
-    res.render("404_not_found");
+    res.send("Error: No Access");
     return;
   }
   res.redirect(longURL);
@@ -230,8 +231,13 @@ app.post("/urls/:shortURL", (req, res) => {
 
 //Delete
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls/");
+  if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls/");
+    return;
+  }
+  res.status(401);
+  res.send("Error: No Access")
 });
 
 app.listen(PORT, () => {
