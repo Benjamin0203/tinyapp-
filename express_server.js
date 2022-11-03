@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8000;
@@ -9,7 +10,11 @@ app.set("view engine", "ejs");
 
 //middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['secretKey'],
+}))
 app.use(morgan("dev"));
 
 
@@ -72,14 +77,14 @@ app.get("/", (req, res) => {
 //Change
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    urls: urlsForUser(req.cookies["user_id"]),
+    urls: urlsForUser(req.session.user_id),
     users,
-    user_id: req.cookies["user_id"],
+    user_id: req.session.user_id,
     noUser: true,
     wrongMsg: false
   }
 
-  if (req.cookies["user_id"] === undefined) {
+  if (req.session.user_id === undefined) {
     templateVars["noUser"] === false;
     res.render("login", templateVars);
     return;
@@ -94,14 +99,14 @@ app.get("/urls.json", (req, res) => {
 
 // Get new urls
 app.get("/urls/new", (req, res) => {
-  if (req.cookies.user_id === undefined) {
+  if (req.session.user_id === undefined) {
     res.redirect("/login");
     return;
   }
 
   const templateVars = {
     users,
-    user_id: req.cookies["user_id"] 
+    user_id: req.session.user_id 
   }
   res.render("urls_new", templateVars);
 });
@@ -110,7 +115,7 @@ app.get("/urls/new", (req, res) => {
 // Login
 app.get("/login", (req, res) => {
   const templateVars = {
-    user_id: req.cookies["user_id"],
+    user_id: req.session.user_id,
     users,
     noUser: false,
     wrongMsg: false
@@ -123,15 +128,15 @@ app.post("/login", (req, res) => {
   let userPassword = req.body.password;
 
   for (let user in users) {
-    if (users[user].email === userEmail && bcrypt.compareSync(userPassword, users[user].password)) { //users[user].password === userPassword
-      res.cookie("user_id", users[user].id);
+    if (users[user].email === userEmail && bcrypt.compareSync(userPassword, users[user].password)) {
+      res.session.user_id = users[user].id;
       res.redirect("/urls");
       return;
     }
   }
 
   const templateVars = {
-    user_id: req.cookies.user_id,
+    user_id: req.session.user_id,
     users,
     noUser: false,
     wrongMsg: true
@@ -152,7 +157,7 @@ app.post("/logout", (req, res) => {
 //Register
 app.get("/register", (req, res) => {
   const templateVars = {
-    user_id: req.cookies["user_id"],
+    user_id: req.session.user_id,
     users
   }
   res.render("registration", templateVars)
@@ -180,20 +185,21 @@ app.post("/register", (req, res) => {
     email: userEmail,
     password: hashedPassword
   }
-  res.cookie("user_id", users[randomID].id);
+  // res.cookie("user_id", users[randomID].id);
+  req.session.user_id = users[randomID].id;
   res.redirect("/urls");
 })
 
 //Generating shortURL
 app.post("/urls", (req, res) => {
-  if (req.cookies.user_id === undefined) {
+  if (req.session.user_id === undefined) {
     res.redirect("/login");
     return;
   }
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userID: req.cookies.user_id
+    userID: req.session.user_id
   }
   res.redirect(`/urls/${shortURL}`);
 });
@@ -213,7 +219,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL]["longURL"],  
-    users, user_id: req.cookies["user_id"]};
+    users, user_id: req.session.user_id};
   res.render("urls_show", templateVars)
 });
 
@@ -226,7 +232,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 //Delete
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id) {
+  if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls/");
     return;
