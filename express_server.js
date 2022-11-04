@@ -11,7 +11,6 @@ app.set("view engine", "ejs");
 
 //middleware
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['secretKey'],
@@ -191,7 +190,7 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]["longURL"];
   if (longURL === undefined) {
     res.status(404);
-    res.send("Error: No Access");
+    res.send("Page not found");
     return;
   }
   res.redirect(longURL);
@@ -222,8 +221,12 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
     return;
   }
   res.status(401);
-  res.send("Error: No Access");
+  res.send("Page not found");
 });
+
+app.get("*", (req, res) => {
+  res.send("Page not found")
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
