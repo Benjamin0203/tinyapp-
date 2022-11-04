@@ -47,12 +47,11 @@ const { generateRandomString } = require('./helpers');
 const { getUserByEmail } = require('./helpers');
 const { urlsForUser } = require('./helpers');
 
-//Homepage
+//Home
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-//Change
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlsForUser(req.session.user_id, urlDatabase),
@@ -225,7 +224,7 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.get("*", (req, res) => {
-  res.send("Page not found")
+  res.send("Page not found");
 })
 
 app.listen(PORT, () => {
