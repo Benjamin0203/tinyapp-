@@ -17,41 +17,37 @@
   <header>
     <%- include('partials/_header') %>
   </header>
-
   <body>
     <div id="login">
-      <h3 class="text-center text-white pt-5">Login form</h3>
-      <div class="container">
-        <div id="login-row" class="row justify-content-center align-items-center">
-          <div id="login-column" class="col-md-6">
-            <div id="login-box" class="col-md-12">
-
+      <div class="container py5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong" style="border-radius: 1rem;">
+              <div class="card-body p-5 text-center">
               <% if (noUser) {%>
                 <p>Please log in to check URLs!</p>
                 <% } %>
-
               <form id="login-form" class="form" action="/login" method="POST">
-                <h3 class="text-center text-info">Login</h3>
+                <h3 class="mb-5">Login</h3>
                 <div class="form-group">
-                  <label for="email" class="text-info">Email:</label><br>
-                  <input type="email" name="email" id="email" class="form-control">
+                  <label for="email">Email:</label><br>
+                  <input type="email" name="email" id="typeEmailX-2" class="form-control form-control-lg">
                 </div>
                 <div class="form-group">
-                  <label for="password" class="text-info">Password:</label><br>
-                  <input type="password" name="password" id="password" class="form-control">
+                  <label for="password">Password:</label><br>
+                  <input type="password" name="password" id="typePasswordX-2" class="form-control form-control-lg">
                 </div>
-
                 <% if (wrongMsg) {%>
                   <p>Please check username or password</p>
                   <% } %> 
-
                 <div class="form-group">
                   <button type="submit" class="btn btn-primary">Login</button>
                 </div>
                 <div id="register-link" class="text-right">
-                  <a href="/register" class="text-info">Register here</a>
+                  <a href="/register" class="text-secondary">Register here</a>
                 </div>
               </form>
+              </div>
             </div>
           </div>
         </div>
