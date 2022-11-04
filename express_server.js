@@ -3,6 +3,7 @@ const morgan = require("morgan");
 // const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
+const methodOverride = require("method-override");
 const app = express();
 const PORT = 8000;
 
@@ -17,6 +18,7 @@ app.use(cookieSession({
 }));
 app.use(morgan("dev"));
 
+app.use(methodOverride("_method"));
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -125,8 +127,7 @@ app.post("/login", (req, res) => {
 });
 
 //logout
-app.post("/logout", (req, res) => {
-  // res.clearCookie("user_id");
+app.delete("/logout", (req, res) => {
   req.session = null;
   res.redirect("/login");
 });
@@ -214,7 +215,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 //Delete
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls/");

@@ -19,7 +19,7 @@
       </div>
     </div>
     <% if (users[user_id]) {%>
-      <form action="/logout" class= "form-inline" method= "post">
+      <form action="/logout?_method=DELETE" class= "form-inline" method= "post">
         <span class="navbar-text" style="margin-right: 0.5rem;">Logged in as: </span>
         <span class="navbar-brand">
           <%= users[user_id].email %> 
