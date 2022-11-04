@@ -152,7 +152,7 @@ app.post("/register", (req, res) => {
 
   if (getUserByEmail(userEmail, users)) {
     res.status(400);
-    res.send(`status code: ${res.statusCode} email already in use`);
+    res.send(`status code: ${res.statusCode} email already in use, please <a href= '/register'> register </a> with a valid Email and password`);
     return;
   }
   if (!userEmail|| !userPassword) {
