@@ -6,7 +6,7 @@ const generateRandomString = () => {
 
 //Function: check if the user email exists in database(users), if it does, return the user object info, otherwise return undefined
 const getUserByEmail = (email, database) => {
-  for (let user in database) {
+  for (const user in database) {
     if (database[user].email === email) {
       return database[user];
     }

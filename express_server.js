@@ -155,12 +155,12 @@ app.post("/register", (req, res) => {
     res.send(`status code: ${res.statusCode} email already in use`);
     return;
   }
-  if (userEmail.length < 1 || userPassword.length < 1) {
+  if (!userEmail|| !userPassword) {
     res.status(400);
-    res.send(`status code: ${res.statusCode} You must register with a valid Email and password`);
+    res.send(`status code: ${res.statusCode} You must <a href= '/register'> register </a> with a valid Email and password`);
     return;
   }
-
+//---------------------
   users[randomID] = {
     id: randomID,
     email: userEmail,
