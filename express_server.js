@@ -102,6 +102,10 @@ app.get("/login", (req, res) => {
     noUser: false,
     wrongMsg: false
   };
+  if (req.session.user_id) {
+    res.redirect("/urls");
+    return;
+  }
   res.render("login", templateVars);
 });
 
