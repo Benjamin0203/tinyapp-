@@ -221,9 +221,14 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //Edit longURL
 app.post("/urls/:shortURL", (req, res) => {
-  let longURL = req.body.updatedURL;
-  urlDatabase[req.params.shortURL]["longURL"] = longURL;
-  res.redirect(`/urls`);
+  if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
+
+    let longURL = req.body.updatedURL;
+    urlDatabase[req.params.shortURL]["longURL"] = longURL;
+    res.redirect(`/urls`);
+    return;
+  }
+  res.send("Page not found please <a href= '/login'> login </a>");
 });
 
 //Delete
