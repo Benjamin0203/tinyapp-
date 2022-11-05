@@ -1,3 +1,8 @@
+//helper.js modules
+const { generateRandomString } = require('./helpers');
+const { getUserByEmail } = require('./helpers');
+const { urlsForUser } = require('./helpers');
+
 const express = require("express");
 const morgan = require("morgan");
 // const cookieParser = require('cookie-parser');
@@ -42,14 +47,15 @@ const urlDatabase = {
   },
 };
 
-//helper.js modules
-const { generateRandomString } = require('./helpers');
-const { getUserByEmail } = require('./helpers');
-const { urlsForUser } = require('./helpers');
+
 
 //Home
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (!req.session.user_id) {
+    res.redirect("/login");
+    return;
+  }
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
@@ -186,13 +192,11 @@ app.post("/urls", (req, res) => {
 
 //Direct shortURL to longURL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]["longURL"];
-  if (longURL === undefined) {
-    res.status(404);
-    res.send("Page not found");
+  if (urlDatabase[req.params.shortURL] === undefined) {
+    res.send("Page not found, please <a href= '/login'> login </a> ");
     return;
   }
-  res.redirect(longURL);
+  res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
 //Get new shortURL page (urls_show)
