@@ -239,7 +239,7 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
     return;
   }
   res.status(401);
-  res.send("Page not found");
+  res.send("Unable to delete, please <a href= '/login'> login </a>");
 });
 
 app.get("*", (req, res) => {
