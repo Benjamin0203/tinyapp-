@@ -201,12 +201,22 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Get new shortURL page (urls_show)
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]["longURL"],
-    users,
-    user_id: req.session.user_id
-  };
-  res.render("urls_show", templateVars);
+  if (urlDatabase[req.params.shortURL] === undefined) {
+    res.send("The page your are looking for does not exist, please check or <a href= '/login'> login </a>");
+    return;
+  }
+  if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
+
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      users,
+      user_id: req.session.user_id
+    };
+    res.render("urls_show", templateVars);
+    return;
+  }
+  res.send("Page not found, please check or <a href= '/login'> login </a>");
 });
 
 //Edit longURL
