@@ -205,6 +205,10 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Get new shortURL page (urls_show)
 app.get("/urls/:shortURL", (req, res) => {
+  if  (req.session.user_id === undefined) {
+    res.send("You are not logged in, please <a href= '/login'> login </a>");
+    return;
+  }
   if (urlDatabase[req.params.shortURL] === undefined) {
     res.send("The page your are looking for does not exist, please check or <a href= '/login'> login </a>");
     return;
@@ -225,6 +229,11 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //Edit longURL
 app.post("/urls/:shortURL", (req, res) => {
+  if  (req.session.user_id === undefined) {
+    res.send("You are not logged in, please <a href= '/login'> login </a>");
+    return;
+  }
+
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
 
     let longURL = req.body.updatedURL;
@@ -237,6 +246,10 @@ app.post("/urls/:shortURL", (req, res) => {
 
 //Delete
 app.delete("/urls/:shortURL/delete", (req, res) => {
+  if  (req.session.user_id === undefined) {
+    res.send("You are not logged in, please <a href= '/login'> login </a>");
+    return;
+  }
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls/");
